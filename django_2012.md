@@ -49,14 +49,8 @@ dj_database_url            # Get database URL from environment variables
 pillow                     # PIL-compatible imaging library in pure Python
 gunicorn                   # Production webserver
 gevent                     # High speed event handling library
-django-social-auth         # Authenticate using social account
 django-bcrypt              # More secure password hashing
-django-bootstrap-form      # Format Django forms to look nice with Twitter Bootstrap 
-docutils                   # Documentation utilities
-django-storages            # S3 storage for file attachments
-boto                       # Python interface to Amazon Web Services
 newrelic                   # Cloud-based monitoring service
-django-sslify              # Require SSL site-wide
 ```
 
 Install from requirements using `pip`:
@@ -81,8 +75,8 @@ boto==2.5.2
 distribute==0.6.24
 dj-database-url==0.2.1
 django-bcrypt==0.9.2
-django-bootstrap-form==2.0.5
-django-social-auth==0.7.5
+gevent==0.13.8
+greenlet==0.4.0
 ```
 
 Start a Django project
@@ -102,9 +96,9 @@ INSTALLED_APPS += (
 )
 ```
 
-Configure settings to use Heroku's Postgres database when deployed, and SQLite
-locally.  Note that while this is convenient, it is [contrary to 12-Factor app
-design principles](http://www.12factor.net/dev-prod-parity).
+Configure `settings.py` to use Heroku's Postgres database when deployed, and
+SQLite locally.  Note that while this is convenient, it is [contrary to
+12-Factor app design principles](http://www.12factor.net/dev-prod-parity).
 
 ``` python
 import dj_database_url
@@ -112,6 +106,7 @@ import os
 DATABASES = {'default': dj_database_url.config(default='sqlite:///' +
         os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'db.sqlite') )}
 ```
+
 
 Create a `Procfile` to to launch the web process using Gunicorn with Gevent-based workers.
 
@@ -123,6 +118,7 @@ $ echo 'web: newrelic-admin run-program gunicorn myproject.wsgi -b 0.0.0.0:$PORT
 Use [`foreman`](https://devcenter.heroku.com/articles/config-vars#local-setup)
 to run your app locally in a production-like environment.  Foreman reads
 environment variables from an `.env` file and sets them when starting the app.
+
 
 Go make something awesome!
 
