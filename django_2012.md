@@ -8,14 +8,17 @@ Develop on Ubuntu; Source on Github; Deploy to Heroku
 You may already have (some of) these installed.  It is best not to install Django system-wide, to avoid confusion with the Django instance that will be installed inside your virtual environment below.
 
 ``` bash
-$ sudo apt-get install python python-pip python-virutalenv git
-# Install Heroku via PPA
+$ sudo apt-get install python python-virutalenv git
+# Install Heroku (uses PPA)
 $ wget -qO- https://toolbelt.heroku.com/install.sh | sh
 ```
 
 ## Create a new repository on Github
 
-Create a new repo [the usual way](https://help.github.com/articles/creating-a-new-repository).  Check the "Initialize this repository with a README" box and choose a "Django" .gitignore file from the list.
+Create a new repo [the usual
+way](https://help.github.com/articles/creating-a-new-repository).  Check the
+"Initialize this repository with a README" box and choose a "Django" .gitignore
+file from the list.
 
 Clone the repo to your local computer.
 
@@ -35,30 +38,51 @@ $ source venv/bin/activate
 
 (`venv` for virtualenv. That is the conventional name, but you can choose whatever you like.)
 
-Install some things into your virtualenv.
+Declare your dependencies in a `requirements.base.txt` file:
+
+```
+django                     # Web application framework
+psycopg2                   # PostgreSQL driver
+south                      # Database migration service
+ipython                    # Interactive Python shell
+dj_database_url            # Get database URL from environment variables
+pillow                     # PIL-compatible imaging library in pure Python
+gunicorn                   # Production webserver
+gevent                     # High speed event handling library
+django-social-auth         # Authenticate using social account
+django-bcrypt              # More secure password hashing
+django-bootstrap-form      # Format Django forms to look nice with Twitter Bootstrap 
+docutils                   # Documentation utilities
+django-storages            # S3 storage for file attachments
+boto                       # Python interface to Amazon Web Services
+newrelic                   # Cloud-based monitoring service
+django-sslify              # Require SSL site-wide
+```
+
+Install from requirements using `pip`:
 
 ``` bash
-$ pip install Django psycopg2 south pillow dj_database_url ipython \
-gunicorn gevent django-bcrypt
+$ pip install -r requirements.base.txt
 ```
-* [psycopg2](https://initd.org/psycopg/) is a PostgreSQL adapter for Python.
-* [South][south] handles database migrations.
-* [Pillow](https://pypi.python.org/pypi/Pillow) is a virtualenv-safe
-  replacement for PIL.
-* [dj_database_url](https://github.com/kennethreitz/dj-database-url) makes DB
-  settings for Heroku easy.
-* [IPython](https://ipython.org) provides an enhanced Python shell for your
-  development pleasure.
-* [Gunicorn](https://gunicorn.org) 'Green Unicorn' is a Python WSGI HTTP Server
-  for UNIX.
-* [django-bcrypt](https://github.com/dwaiter/django-bcrypt) provides more
-  secure password encryption using bcrypt.
 
-
-Now save the exact version into a `requirements.txt` file.
+Now save the exact version into a `requirements.txt` file.  This file will be
+used by Heroku to provision your app.  By using the exact version numbers
+provided by `pip freeze`, we can guarantee dependencies in production will always be
+the exact same version used in development.
 
 ``` bash
 $ pip freeze > requirements.txt
+$ head requirements.txt
+Django==1.4.1
+Pillow==1.7.7
+South==0.7.6
+argparse==1.2.1
+boto==2.5.2
+distribute==0.6.24
+dj-database-url==0.2.1
+django-bcrypt==0.9.2
+django-bootstrap-form==2.0.5
+django-social-auth==0.7.5
 ```
 
 Start a Django project
@@ -68,7 +92,7 @@ $ django-admin.py startproject myproject .
 ```
 
 
-Add `south` and `gunicorn` to your `INSTALLED_APPS` in `settings.py`.
+Add `south` and `django_bcrypt` to your `INSTALLED_APPS` in `settings.py`.
 
 ``` python
 INSTALLED_APPS = (
@@ -88,19 +112,25 @@ DATABASES = {'default': dj_database_url.config(default='sqlite:///' +
         os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'db.sqlite') )}
 ```
 
-Create a `Procfile` to to launch the web process using Gunicorn.
+Create a `Procfile` to to launch the web process using Gunicorn with Gevent-based workers.
 
 ``` bash
 # Note the single quote marks so $PORT gets echoed literally
-$ echo 'web: gunicorn myproject.wsgi -b 0.0.0.0:$PORT' > Procfile
+$ echo 'web: newrelic-admin run-program gunicorn myproject.wsgi -b 0.0.0.0:$PORT -k gevent ' > Procfile
 ```
 
+Use [`foreman`](https://devcenter.heroku.com/articles/config-vars#local-setup)
+to run your app locally in a production-like environment.  Foreman reads
+environment variables from an `.env` file and sets them when starting the app.
+
 Go make something awesome!
+
 
 ## Deploy to Heroku
 
 ``` bash
 $ heroku create
+$ heroku addons:add newrelic:standard
 $ git push heroku master
 $ heroku run ./manage.py syncdb
 $ heroku open
@@ -122,12 +152,14 @@ Whenever you work on your project, you'll want to activate your virtualenv:
 $ source venv/bin/activate
 ```
 
-Install new packages with Pip, then update `requirements.txt` file.
+Install new packages by adding them to `requirements.base.txt`, installing them, and when they have been 
+confirmed to work, saving them to `requirements.txt` with `pip freeze`.
 
 ``` bash
-$ pip install django-nose
+$ vim requirements.base.txt
+$ pip install -r requirements.base.txt
 $ pip freeze > requirements.txt
-$ git commit requirements.txt -m "Added django-nose to requirements.txt"
+$ git commit requirements.* -m "Added some-package to requirements.txt"
 ```
 
 If `requirements.txt` was updated elsewhere, you can update your virtualenv:
@@ -159,3 +191,12 @@ $ python ./manage.py runserver
   Center](https://devcenter.heroku.com/articles/django)
 
 [south]: http://south.aeracode.org/
+
+
+# Copying
+
+Originally based on https://gist.github.com/2596149
+
+[ ![Creative Commons License](http://i.creativecommons.org/l/by-sa/3.0/88x31.png) ](http://creativecommons.org/licenses/by-sa/3.0/deed.en_US)
+This work is licensed under a [Creative Commons Attribution-ShareAlike 3.0 
+Unported License](http://creativecommons.org/licenses/by-sa/3.0/deed.en_US)
