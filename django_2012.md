@@ -133,6 +133,9 @@ $ heroku run ./manage.py syncdb
 $ heroku open
 ```
 
+Your app should now be running.  You can see all sorts of spiffy charts about
+its performance etc from New Relic from your Heroku dashboard.
+
 ## Update your database with [South][south] and push the changes to Heroku
 
 1. Make changes to your models
