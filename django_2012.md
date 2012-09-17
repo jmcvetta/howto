@@ -138,11 +138,12 @@ its performance etc from New Relic from your Heroku dashboard.
 
 ## Update your database with [South][south] and push the changes to Heroku
 
-1. Make changes to your models
-2. `$ python ./manage.py schemamigration [appname] --auto`
-3. `$ python ./manage.py migrate [appname]`
+1. Make changes to your models.
+2. Create a migration: `$ python ./manage.py schemamigration [appname] --auto`
+3. Migrate your local DB: `$ python ./manage.py migrate [appname]`
 4. [commit & push changes to heroku]
-5. `$ heroku run ./manage.py migrate [appname]`
+5. Migrate Heroku DB: `$ heroku run ./manage.py migrate [appname]`
+
 
 ## Working on your project later
 
