@@ -95,15 +95,16 @@ $ django-admin.py startproject myproject .
 Add `south` and `django_bcrypt` to your `INSTALLED_APPS` in `settings.py`.
 
 ``` python
-INSTALLED_APPS = (
-    ...
+INSTALLED_APPS += (
     'south',
     'gunicorn',
     'django_bcrypt',
 )
 ```
 
-Configure settings to use Heroku's Postgres database when deployed, and SQLite locally.
+Configure settings to use Heroku's Postgres database when deployed, and SQLite
+locally.  Note that while this is convenient, it is [contrary to 12-Factor app
+design principles](http://www.12factor.net/dev-prod-parity).
 
 ``` python
 import dj_database_url
@@ -159,26 +160,13 @@ confirmed to work, saving them to `requirements.txt` with `pip freeze`.
 $ vim requirements.base.txt
 $ pip install -r requirements.base.txt
 $ pip freeze > requirements.txt
-$ git commit requirements.* -m "Added some-package to requirements.txt"
+$ git commit requirements.* -m "Added some_package to requirements.txt"
 ```
 
 If `requirements.txt` was updated elsewhere, you can update your virtualenv:
 
 ``` bash
 $ pip install -r requirements.txt
-```
-
-Sync and/or migrate your database:
-
-``` bash
-$ python ./manage.py syncdb
-$ python ./manage.py migrate [appname]
-```
-
-Finally, fire up your server:
-
-``` bash
-$ python ./manage.py runserver
 ```
 
 ### Sources
