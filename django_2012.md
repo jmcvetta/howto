@@ -41,16 +41,16 @@ $ source venv/bin/activate
 Declare your dependencies in a `requirements.base.txt` file:
 
 ```
-django                     # Web application framework
-psycopg2                   # PostgreSQL driver
-south                      # Database migration service
-ipython                    # Interactive Python shell
-dj_database_url            # Get database URL from environment variables
-pillow                     # PIL-compatible imaging library in pure Python
-gunicorn                   # Production webserver
-gevent                     # High speed event handling library
-django-bcrypt              # More secure password hashing
-newrelic                   # Cloud-based monitoring service
+django           # Web application framework
+psycopg2         # PostgreSQL driver
+south            # Database migration service
+ipython          # Interactive Python shell
+dj_database_url  # Get database URL from environment variables
+pillow           # PIL-compatible imaging library in pure Python
+gunicorn         # Production webserver
+gevent           # High speed event handling library
+py-bcrypt        # More secure password hashing
+newrelic         # Cloud-based monitoring service
 ```
 
 Install from requirements using `pip`:
@@ -74,7 +74,6 @@ argparse==1.2.1
 boto==2.5.2
 distribute==0.6.24
 dj-database-url==0.2.1
-django-bcrypt==0.9.2
 gevent==0.13.8
 greenlet==0.4.0
 ```
@@ -86,15 +85,24 @@ $ django-admin.py startproject myproject .
 ```
 
 
-Add `south` and `django_bcrypt` to your `INSTALLED_APPS` in `settings.py`.
+Add `south` to your `INSTALLED_APPS` in `settings.py`.
 
 ``` python
 INSTALLED_APPS += (
     'south',
-    'gunicorn',
-    'django_bcrypt',
 )
 ```
+
+Enable BCrypt as the preferred password hash.
+
+``` python
+from django.conf import global_settings
+
+PASSWORD_HASHERS = (
+    'django.contrib.auth.hashers.BCryptPasswordHasher',
+) + global_settings.PASSWORD_HASHERS
+```
+
 
 Configure `settings.py` to use Heroku's Postgres database when deployed, and
 SQLite locally.  Note that while this is convenient, it is [contrary to
