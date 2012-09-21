@@ -97,10 +97,13 @@ Enable BCrypt as the preferred password hash.
 
 ``` python
 from django.conf import global_settings
+PASSWORD_HASHERS = global_settings.PASSWORD_HASHERS
+
+# ...
 
 PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.BCryptPasswordHasher',
-) + global_settings.PASSWORD_HASHERS
+) + PASSWORD_HASHERS
 ```
 
 
